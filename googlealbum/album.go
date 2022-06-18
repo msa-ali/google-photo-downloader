@@ -15,7 +15,7 @@ type Album struct {
 	ProductUrl            string `json:"productUrl"`
 	MediaItemsCount       string `json:"mediaItemsCount"`
 	CoverPhotoBaseUrl     string `json:"coverPhotoBaseUrl"`
-	CoverPhotoMediaItemId string `json:"CoverPhotoMediaItemId"`
+	CoverPhotoMediaItemId string `json:"coverPhotoMediaItemId"`
 }
 
 type AlbumsResponse struct {

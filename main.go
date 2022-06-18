@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -74,21 +75,16 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func getData(url string, w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
-	// res, err := http.Get(url + "?access_token=" + token.AccessToken)
-	// if err != nil {
-	// 	fmt.Println("Could make get request...")
-	// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-	// 	return
-	// }
+	albums, err := googlealbum.GetAllAlbums(token.AccessToken)
 
-	// defer r.Body.Close()
+	if err != nil {
+		fmt.Println("Could make get request...")
+		fmt.Println(err.Error())
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
 
-	// if res.StatusCode == http.StatusOK {
-	// 	content, _ := ioutil.ReadAll(res.Body)
-	// 	bodyString := string(content)
+	stringifiedAlbum, _ := json.Marshal(albums)
 
-	// 	fmt.Println(bodyString)
-	// 	fmt.Fprintf(w, "Response: %s", content)
-	// }
-	googlealbum.GetAllAlbums(token.AccessToken)
+	fmt.Fprintf(w, "Response: %s", stringifiedAlbum)
 }
