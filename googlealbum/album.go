@@ -1,4 +1,4 @@
-package google_album
+package googlealbum
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ type Album struct {
 
 type AlbumsResponse struct {
 	Albums        []Album `json:"albums"`
-	NextPageToken string `json:"nextPageToken"`
+	NextPageToken string  `json:"nextPageToken"`
 }
 
 func GetAllAlbums(token string) (albums AlbumsResponse, err error) {

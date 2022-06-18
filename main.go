@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/Altamashattari/google-photo-downloader/googlealbum"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -74,20 +74,21 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func getData(url string, w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
-	res, err := http.Get(url + "?access_token=" + token.AccessToken)
-	if err != nil {
-		fmt.Println("Could make get request...")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
-	}
+	// res, err := http.Get(url + "?access_token=" + token.AccessToken)
+	// if err != nil {
+	// 	fmt.Println("Could make get request...")
+	// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	// 	return
+	// }
 
-	defer r.Body.Close()
+	// defer r.Body.Close()
 
-	if res.StatusCode == http.StatusOK {
-		content, _ := ioutil.ReadAll(res.Body)
-		bodyString := string(content)
+	// if res.StatusCode == http.StatusOK {
+	// 	content, _ := ioutil.ReadAll(res.Body)
+	// 	bodyString := string(content)
 
-		fmt.Println(bodyString)
-		fmt.Fprintf(w, "Response: %s", content)
-	}
+	// 	fmt.Println(bodyString)
+	// 	fmt.Fprintf(w, "Response: %s", content)
+	// }
+	googlealbum.GetAllAlbums(token.AccessToken)
 }
