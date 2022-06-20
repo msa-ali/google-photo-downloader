@@ -15,3 +15,5 @@
 # vendor/
 
 .env
+/images
+.DS_STORE

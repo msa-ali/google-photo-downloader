@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/Altamashattari/google-photo-downloader/googlealbum"
 	"github.com/joho/godotenv"
@@ -68,13 +69,11 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	// GET https://photoslibrary.googleapis.com/v1/albums
-	// https://www.googleapis.com/oauth2/v2/userinfo
-	getData("https://photoslibrary.googleapis.com/v1/albums", w, r, token)
+	getData(w, r, token)
 
 }
 
-func getData(url string, w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
+func getData(w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
 	albums, err := googlealbum.GetAllAlbums(token.AccessToken)
 
 	if err != nil {
@@ -84,7 +83,30 @@ func getData(url string, w http.ResponseWriter, r *http.Request, token *oauth2.T
 		return
 	}
 
-	stringifiedAlbum, _ := json.Marshal(albums)
+	firstAlbum := albums.Albums[0]
+	mediaItems, err := firstAlbum.GetMediaItems(token.AccessToken)
 
-	fmt.Fprintf(w, "Response: %s", stringifiedAlbum)
+	if err != nil {
+		fmt.Println("Couldn't get media items")
+		fmt.Println(err.Error())
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+	var wg sync.WaitGroup
+
+	for _, mediaItem := range mediaItems {
+		wg.Add(1)
+		go func(mediaItem googlealbum.MediaItem) {
+			defer wg.Done()
+			googlealbum.DownloadMediaItem(
+				os.Getenv("DOWNLOAD_PATH"),
+				&mediaItem,
+			)
+		}(mediaItem)
+	}
+	wg.Wait()
+
+	stringifiedAlbums, _ := json.Marshal(albums)
+
+	fmt.Fprintf(w, "Response: %s", stringifiedAlbums)
 }
