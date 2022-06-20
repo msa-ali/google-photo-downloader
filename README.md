@@ -1,7 +1,7 @@
 # google-photo-downloader
 Go Application to download Google Photo Album Content
 
-## Concepts Include
+## Concepts Included
 
 - OAuth2 Authentication with Google Photo API
 - Creating HTTP Server and get user consent
