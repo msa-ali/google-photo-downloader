@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
 
 	"github.com/Altamashattari/google-photo-downloader/googlealbum"
 	"github.com/joho/godotenv"
@@ -84,7 +83,8 @@ func getData(w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
 	}
 
 	firstAlbum := albums.Albums[0]
-	mediaItems, err := firstAlbum.GetMediaItems(token.AccessToken)
+	fmt.Println("Total Media Items Count=", firstAlbum.MediaItemsCount)
+	err = firstAlbum.DownloadAllMediaItems(token.AccessToken, os.Getenv("DOWNLOAD_PATH"), 3)
 
 	if err != nil {
 		fmt.Println("Couldn't get media items")
@@ -92,19 +92,6 @@ func getData(w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	var wg sync.WaitGroup
-
-	for _, mediaItem := range mediaItems {
-		wg.Add(1)
-		go func(mediaItem googlealbum.MediaItem) {
-			defer wg.Done()
-			googlealbum.DownloadMediaItem(
-				os.Getenv("DOWNLOAD_PATH"),
-				&mediaItem,
-			)
-		}(mediaItem)
-	}
-	wg.Wait()
 
 	stringifiedAlbums, _ := json.Marshal(albums)
 
